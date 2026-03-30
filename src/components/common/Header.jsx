@@ -7,7 +7,9 @@ import { RxAvatar } from "react-icons/rx";
 import { FiArrowLeft } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import Navbar from "./Navbar"; // add this
+import { IoMenuSharp } from "react-icons/io5";
+import Navbar from "./Navbar";
+
 
 const Header = () => {
   const _300 = useMediaQuery("(min-width:300px)");
@@ -46,16 +48,24 @@ const Header = () => {
         alignItems={"center"}
         py={1}
         top={0}
-        position={"sticky"}
-      >
+        position={"sticky"}>
+
         <img src="/Threads-logo-black-bg.webp" alt="" width={40} height={48} />
 
-        <Navbar />
+        <Stack
+          flexDirection={"row"}
+          width={'500px'}
+          height={82}
+          justifyContent={"center"}
+          zIndex={2}
+          bgcolor={"aliceblue"}>
+          <Navbar />
+          </Stack >
 
-        <p>menu</p>
-      </Stack>
-    </>
-  );
+          <IoMenuSharp size={32} />
+        </Stack>
+      </>
+      );
 };
 
-export default Header;
+      export default Header;

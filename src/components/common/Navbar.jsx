@@ -12,9 +12,9 @@ const Navbar = ({ darkMode = false, myInfo = null }) => {
   const _300 = useMediaQuery("(min-width:300px)");
   const _700 = useMediaQuery("(min-width:700px)");
 
-  const navigate = useNavigate(); // fixed: was missing
+  const navigate = useNavigate();
   const [showArrow, setShowArrow] = useState(false);
-  const [showPostModal, setShowPostModal] = useState(false); // for handleAddPost
+  const [showPostModal, setShowPostModal] = useState(false);
 
   const checkArrow = () => {
     if (window.location.pathname.includes("/post/") && _700) {
@@ -25,7 +25,7 @@ const Navbar = ({ darkMode = false, myInfo = null }) => {
   };
 
   const handleAddPost = () => {
-    setShowPostModal(true); // fixed: was empty
+    setShowPostModal(true);
   };
 
   const handleNavigate = () => {
@@ -40,34 +40,41 @@ const Navbar = ({ darkMode = false, myInfo = null }) => {
     <>
       <Stack
         flexDirection={"row"}
-        maxWidth={"100%"}
+        width={"100%"}
         justifyContent={"space-around"}
         alignItems={"center"}
       >
-        {showArrow ? (
-          <FiArrowLeft
-            size={_300 ? 32 : 24}
+
+        {showArrow
+          ?
+          (<FiArrowLeft size={_300 ? 32 : 24}
             className="image-icon"
             onClick={handleNavigate}
-            color={darkMode ? "white" : "black"}
-          />
-        ) : null}
+            color={darkMode ? "white" : "black"} />)
+          :
+          null}
+
         <Link to={"/"} className="link">
           <GoHome size={_300 ? 32 : 24} color={darkMode ? "white" : "black"} />
         </Link>
+
         <Link to={"/search"} className="link">
           <IoIosSearch size={_300 ? 32 : 24} color={darkMode ? "white" : "black"} />
         </Link>
+
         <TbEdit
           size={_300 ? 32 : 24}
           className="image-icon"
           color={darkMode ? "white" : "black"}
-          onClick={handleAddPost}
-        />
+          onClick={handleAddPost} />
+
+
         <CiHeart size={_300 ? 32 : 24} color={darkMode ? "white" : "black"} />
+
         <Link to={`/profile/threads/${myInfo?._id}`} className="link">
           <RxAvatar size={_300 ? 32 : 24} color={darkMode ? "white" : "black"} />
         </Link>
+
       </Stack>
     </>
   );

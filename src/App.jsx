@@ -1,25 +1,33 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-// import Header from './components/common/Header'
 import Home from './pages/Protected/Home'
 import Search from './pages/Protected/Search'
 import ProtectedLayout from './pages/Protected/ProtectedLayout'
 import Error from './pages/Error'
 import { Box } from "@mui/material"
 // import Register from './pages/Register'
+import ProfileLayout from './pages/Protected/profile/ProfileLayout'
+import Threads from './pages/Protected/profile/Threads'
+import Replies from './pages/Protected/profile/Replies'
+import Repost from './pages/Protected/profile/Repost'
 
 const App = () => {
   return (
     <Box minHieght={'100vh'} >
       <BrowserRouter>
         {/* < Register /> */}
-
         <Routes>
           <Route path="/" element={<ProtectedLayout />} >
             <Route path="" element={< Home />} />
             <Route path="post/:id" element={<>post</>} />
             <Route path="/search" element={< Search />} />
             <Route path="*" element={< Error />} />
+            <Route path="profile" element={<ProfileLayout />} >
+              <Route path="threads/:id" element={<Threads />} />
+              <Route path="replies/:id" element={<Replies />} />
+              <Route path="repost/:id" element={< Repost />} />
+            </Route>
           </Route>
+
         </Routes>
       </BrowserRouter>
     </Box>

@@ -4,7 +4,7 @@ import { IoMdSend } from "react-icons/io";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
-const PostTwo = () => {
+const PostTwo = ({ e, darkMode = false }) => {
   const [isLiked, setIsLiked] = useState(false);
   const [repostMsg, setRepostMsg] = useState({ text: "", type: "" });
 
@@ -14,13 +14,11 @@ const PostTwo = () => {
   const _700 = useMediaQuery("(min-width:700px)");
 
   const handleLike = () => {};
-  const handleRepost = () => { };
-
+  const handleRepost = () => {};
 
   return (
     <>
       {repostMsg.text && (
-
         <Typography
           textAlign={"center"}
           color={repostMsg.type === "success" ? "green" : "red"}
@@ -45,18 +43,16 @@ const PostTwo = () => {
                 fontSize={
                   _700 ? "1.2rem" : _400 ? "1rem" : _300 ? "0.9rem" : "0.8rem"
                 }
-                className={darkMode ? "mode" : ""}>
-
+                className={darkMode ? "mode" : ""}
+              >
                 {e ? e.text : ""}
               </Typography>
             </Link>
           </Stack>
           {e ? (
-
             e.media ? (
-
               <img
-                src='/error-bg.png'
+                src="/error-bg.png"
                 alt={e?.media}
                 loading="lazy"
                 width={

@@ -41,21 +41,25 @@ const Home = () => {
           <Loading />
         ) : null}
       </Stack>
-      {showMore ? (
-        <Button
+
+{/* <Post  /> */}
+
+
+      {showMore
+        ?
+        (<Button
           size="large"
+          top={10}
           sx={{ my: 5, p: 3, textDecoration: "underline", cursor: "pointer" }}
-          onClick={handleClick}
-        >
-          Load More
-        </Button>
-      ) : (
-        allPosts?.length > 0 && (
+          onClick={handleClick}>
+          Load More  </Button>)
+        :
+        (allPosts?.length > 0 && (
           <Typography variant="h6" textAlign={"center"} mb={5}>
             You have reached the end !
-          </Typography>
-        )
-      )}
+          </Typography> )
+        )}
+
     </>
   );
 };

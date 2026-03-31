@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { Link } from "react-router-dom";
 
-const PostOne = () => {
+const PostOne = ({ e }) => {
   const _700 = useMediaQuery("(min-width:700px)");
 
   return (
@@ -18,7 +18,7 @@ const PostOne = () => {
         alignItems={"center"}
         justifyContent={"space-between"}
       >
-        <Link to={`/profile/threads/${e?.admin._id}`}>
+        <Link to={``}>
           <Badge
             overlap="circular"
             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}

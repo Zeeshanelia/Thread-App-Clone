@@ -9,6 +9,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { IoMenuSharp } from "react-icons/io5";
 import Navbar from "./Navbar";
+import MainMenu from "../menu/MainMenu";
+
 
 
 const Header = () => {
@@ -60,12 +62,13 @@ const Header = () => {
           zIndex={2}
           bgcolor={"aliceblue"}>
           <Navbar />
-          </Stack >
+        </Stack >
 
-          <IoMenuSharp size={32} />
-        </Stack>
-      </>
-      );
+         < MainMenu />
+        {/* <IoMenuSharp size={32} /> */}
+      </Stack>
+    </>
+  );
 };
 
-      export default Header;
+export default Header;

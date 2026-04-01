@@ -1,61 +1,67 @@
-import { Stack, TextField } from "@mui/material";
+import { Stack, TextField, Typography } from "@mui/material";
 import Post from "../../components/home/Post";
 import Comments from "../../components/home/post/Comments";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useAddCommentMutation, useSinglePostQuery } from "../../redux/service";
-import { Bounce, toast } from "react-toastify";
 
 const SinglePost = () => {
   const params = useParams();
 
   const [comment, setComment] = useState("");
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [msg, setMsg] = useState({ text: "", type: "" });
 
-  const { data, refetch } = useSinglePostQuery(params?.id);
-  const [addComment, addCommentData] = useAddCommentMutation();
+  const fetchPost = async () => {
+    try {
+      const res = await fetch(`/api/post/${params?.id}`); // adjust URL
+      const result = await res.json();
+      setData(result);
+    } catch (err) {
+      console.error("Failed to fetch post:", err);
+    }
+  };
 
   const handleAddComment = async (e) => {
     if (data && e.key === "Enter") {
-      const info = {
-        id: data.post._id,
-        text: comment,
-      };
-      await addComment(info);
+      try {
+        const res = await fetch(`/api/post/${data.post._id}/comment`, { // adjust URL
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: comment }),
+        });
+        const result = await res.json();
+        if (res.ok) {
+          setComment("");
+          setMsg({ text: result.msg, type: "success" });
+          fetchPost();
+        } else {
+          setMsg({ text: result.msg, type: "error" });
+        }
+      } catch (err) {
+        setMsg({ text: "Comment failed", type: "error" });
+      } finally {
+        setTimeout(() => setMsg({ text: "", type: "" }), 2500);
+      }
     }
   };
 
   useEffect(() => {
-    if (addCommentData.isSuccess) {
-      setComment();
-      refetch();
-      toast.success(addCommentData.data.msg, {
-        position: "top-center",
-        autoClose: 2500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "colored",
-        transition: Bounce,
-      });
-    }
-    if (addCommentData.isError) {
-      toast.error(addCommentData.error.data.msg, {
-        position: "top-center",
-        autoClose: 2500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "colored",
-        transition: Bounce,
-      });
-    }
-  }, [addCommentData.isSuccess, addCommentData.isError]);
+    fetchPost();
+  }, [params?.id]);
 
   return (
     <>
       <Stack flexDirection={"column"} my={5} gap={2}>
+        {msg.text && (
+          <Typography
+            textAlign={"center"}
+            color={msg.type === "success" ? "green" : "red"}
+            fontSize={"0.9rem"}
+          >
+            {msg.text}
+          </Typography>
+        )}
         <Post e={data?.post} />
         <Stack flexDirection={"column"} gap={2} width={"80%"} mx={"auto"}>
           {data
@@ -74,7 +80,7 @@ const SinglePost = () => {
           sx={{ width: "50%", mx: "auto", my: 5, p: 1 }}
           onChange={(e) => setComment(e.target.value)}
           onKeyUp={handleAddComment}
-          value={comment ? comment : ""}
+          value={comment}
         />
       </Stack>
     </>

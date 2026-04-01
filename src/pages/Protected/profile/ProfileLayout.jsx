@@ -4,6 +4,7 @@ import { Link, Outlet, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import EditProfile from "../../../components/modals/EditProfile";
 
+
 const ProfileLayout = ({ myInfo = null, darkMode = false }) => {
   const params = useParams();
 
@@ -180,6 +181,7 @@ const ProfileLayout = ({ myInfo = null, darkMode = false }) => {
           className={`link ${darkMode ? "mode" : ""}`}>
           Reposts
         </Link>
+
       </Stack>
       <Outlet />
       <EditProfile open={showEditModal} onClose={() => setShowEditModal(false)} />

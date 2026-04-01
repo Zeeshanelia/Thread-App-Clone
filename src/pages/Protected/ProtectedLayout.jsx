@@ -1,6 +1,8 @@
 import { Stack, useMediaQuery } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import Header from "../../components/common/Header";
+// import AddPost from "../../components/modals/AddPost";
+// import MainMenu from '../../components/menu/MainMenu'
 
 
 const ProtectedLayout = () => {
@@ -14,6 +16,9 @@ const ProtectedLayout = () => {
       mx={"auto"}
       overflow={"hidden"}>
       <Header />
+        {/* < AddPost /> */}
+        {/* < MainMenu /> */}
+        {/* < MyMenu /> */}
       <Outlet />
     </Stack>
   );

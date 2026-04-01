@@ -7,6 +7,7 @@ import { RxAvatar } from "react-icons/rx";
 import { FiArrowLeft } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import AddPost from "../modals/AddPost";
 
 const Navbar = ({ darkMode = false, myInfo = null }) => {
   const _300 = useMediaQuery("(min-width:300px)");
@@ -62,11 +63,12 @@ const Navbar = ({ darkMode = false, myInfo = null }) => {
           <IoIosSearch size={_300 ? 32 : 24} color={darkMode ? "white" : "black"} />
         </Link>
 
-        <TbEdit
+        {/* <TbEdit
           size={_300 ? 32 : 24}
           className="image-icon"
           color={darkMode ? "white" : "black"}
-          onClick={handleAddPost} />
+          onClick={handleAddPost} /> */}
+          < AddPost  />
 
 
         <CiHeart size={_300 ? 32 : 24} color={darkMode ? "white" : "black"} />

@@ -3,63 +3,66 @@ import Input from "../../components/home/Input";
 import Post from "../../components/home/Post";
 import Loading from "../../components/common/Loading";
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { useAllPostQuery } from "../../redux/service";
 
 const Home = () => {
   const [page, setPage] = useState(1);
   const [showMore, setShowMore] = useState(true);
-  const [allPosts, setAllPosts] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState(null);
+
+  const { darkMode, allPosts } = useSelector((state) => state.service);
+
+  //  Fetch posts from API
+  const { data, isLoading } = useAllPostQuery(page);
 
   const handleClick = () => {
-    setPage((pre) => pre + 1);
+    setPage((prev) => prev + 1);
   };
 
+  //  Control "Load More"
   useEffect(() => {
-    if (data) {
-      if (data.posts.length < 3) {
-        setShowMore(false);
-      }
+    if (data?.posts?.length < 3) {
+      setShowMore(false);
     }
   }, [data]);
 
   return (
     <>
       <Input />
-      <Stack flexDirection={"column"} gap={2} mb={10}>
-        {allPosts ? (
-          allPosts.length > 0 ? (
-            allPosts.map((e) => {
-              return <Post key={e._id} e={e} />;
-            })
-          ) : (
-            <Typography variant="caption" textAlign={"center"}>
-              No post yet !
-            </Typography>
-          )
-        ) : isLoading ? (
+
+      <Stack flexDirection="column" gap={2} mb={10}>
+        {isLoading && page === 1 ? (
           <Loading />
-        ) : null}
+        ) : allPosts?.length > 0 ? (
+          allPosts.map((e) => <Post key={e._id} e={e} />)
+        ) : (
+          <Typography variant="caption" textAlign="center">
+            No post yet !
+          </Typography>
+        )}
       </Stack>
 
-{/* <Post  /> */}
-
-
-      {showMore
-        ?
-        (<Button
+      {/*  Load More Button */}
+      {showMore ? (
+        <Button
           size="large"
-          top={10}
-          sx={{ my: 5, p: 3, textDecoration: "underline", cursor: "pointer" }}
-          onClick={handleClick}>
-          Load More  </Button>)
-        :
-        (allPosts?.length > 0 && (
-          <Typography variant="h6" textAlign={"center"} mb={5}>
+          sx={{
+            my: 5,
+            p: 3,
+            textDecoration: "underline",
+            cursor: "pointer",
+          }}
+          onClick={handleClick}
+        >
+          {isLoading ? "Loading..." : "Load More"}
+        </Button>
+      ) : (
+        allPosts?.length > 0 && (
+          <Typography variant="h6" textAlign="center" mb={5}>
             You have reached the end !
-          </Typography> )
-        )}
-
+          </Typography>
+        )
+      )}
     </>
   );
 };

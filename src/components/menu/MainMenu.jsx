@@ -1,63 +1,78 @@
-import { Menu, MenuItem, IconButton } from "@mui/material";
+import { Menu, MenuItem } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import { IoMenu } from "react-icons/io5";
+import { toggleColorMode, toggleMainMenu, logoutUser,setLoading,} from "../../redux/slice";
+import { Bounce, toast } from "react-toastify";
 
 const MainMenu = () => {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [myInfo] = useState({ _id: "123" });
-  const [msg, setMsg] = useState({ text: "", type: "" });
+  const { anchorEl, myInfo } = useSelector((state) => state.app);
+  const dispatch = useDispatch();
 
-  const handleClose = () => setAnchorEl(null);
-  const handleOpen = (e) => setAnchorEl(e.currentTarget);
+  const handleClose = () => {
+    dispatch(toggleMainMenu(null));
+  };
 
   const handleToggleTheme = () => {
     handleClose();
+    dispatch(toggleColorMode());
   };
 
+  //  Dummy API using fetch
   const handleLogout = async () => {
     handleClose();
+    dispatch(setLoading(true));
+
     try {
-      const res = await fetch("/api/logout", { method: "POST" });
-      const result = await res.json();
-      if (res.ok) {
-        setMsg({ text: result.msg, type: "success" });
-      } else {
-        setMsg({ text: result.msg, type: "error" });
-      }
-    } catch (err) {
-      setMsg({ text: "Logout failed", type: "error" });
+      // fake API (you can replace with jsonplaceholder)
+      const res = await fetch("https://jsonplaceholder.typicode.com/posts/1");
+
+      if (!res.ok) throw new Error("Logout failed");
+
+      const data = await res.json();
+
+      dispatch(logoutUser());
+
+      toast.warning("Logout successful", {
+        position: "top-center",
+        autoClose: 2500,
+        theme: "colored",
+        transition: Bounce,
+      });
+
+    } catch (error) {
+      toast.error(error.message || "Something went wrong", {
+        position: "top-center",
+        autoClose: 2500,
+        theme: "colored",
+        transition: Bounce,
+      });
     } finally {
-      setTimeout(() => setMsg({ text: "", type: "" }), 2500);
+      dispatch(setLoading(false));
     }
   };
 
   return (
-    <>
-      {msg.text && (
-        <p style={{ textAlign: "center", color: msg.type === "success" ? "green" : "red" }}>
-          {msg.text}
-        </p>
-      )}
+    <Menu
+      anchorEl={anchorEl}
+      open={Boolean(anchorEl)}
+      onClose={handleClose}
+      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
+    >
+      <MenuItem onClick={handleToggleTheme}>
+        Toggle Theme
+      </MenuItem>
 
-      <IconButton onClick={handleOpen}>
-        <IoMenu size={28} color="gray" />
-      </IconButton>
+      <Link to={`/profile/threads/${myInfo?._id}`} className="link">
+        <MenuItem onClick={handleClose}>
+          My Profile
+        </MenuItem>
+      </Link>
 
-      <Menu
-        anchorEl={anchorEl}
-        open={anchorEl !== null}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <MenuItem onClick={handleToggleTheme}>Toggle Theme</MenuItem>
-        <Link to={`/profile/threads/${myInfo?._id}`} className="link">
-          <MenuItem>My Profile</MenuItem>
-        </Link>
-        <MenuItem onClick={handleLogout}>Logout</MenuItem>
-      </Menu>
-    </>
+      <MenuItem onClick={handleLogout}>
+        Logout
+      </MenuItem>
+    </Menu>
   );
 };
 

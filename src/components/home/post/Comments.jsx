@@ -1,76 +1,49 @@
-import {
-  Avatar,
-  Menu,
-  MenuItem,
-  Stack,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Avatar, Menu, MenuItem, Stack, Typography, useMediaQuery } from "@mui/material";
 import { useEffect, useState } from "react";
 import { IoIosMore } from "react-icons/io";
+import { useSelector } from "react-redux";
+import { useDeleteCommentMutation, useSinglePostQuery } from "../../../redux/service";
 import { Bounce, toast } from "react-toastify";
 
-
 const Comments = ({ e, postId }) => {
-
+  const { darkMode, myInfo } = useSelector((state) => state.service);
 
   const [anchorEl, setAnchorEl] = useState(null);
-  const [isAdmin, setIsAdmin] = useState();
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  const _700 = useMediaQuery("(min-width:700px)");
+  const is700 = useMediaQuery("(min-width:700px)");
 
   const [deleteComment, deleteCommentData] = useDeleteCommentMutation();
   const { refetch } = useSinglePostQuery(postId);
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const handleClose = () => setAnchorEl(null);
 
   const handleDeleteComment = async () => {
-    const info = {
-      postId,
-      id: e?._id,
-    };
-    await deleteComment(info);
+    if (!e?._id || !postId) return;
+    await deleteComment({ postId, id: e._id });
     handleClose();
     refetch();
   };
 
-  const checkIsAdmin = () => {
-    if (e && myInfo) {
-      if (e.admin._id === myInfo._id) {
-        setIsAdmin(true);
-        return;
-      }
-    }
-    setIsAdmin(false);
-  };
-
+  // Check if current user is the admin of this comment
   useEffect(() => {
-    checkIsAdmin();
-  }, []);
+    setIsAdmin(e?.admin?._id === myInfo?._id);
+  }, [e, myInfo]);
 
+  // Toast notifications
   useEffect(() => {
     if (deleteCommentData.isSuccess) {
-      toast.success(deleteCommentData.data.msg, {
+      toast.success(deleteCommentData.data?.msg || "Comment deleted", {
         position: "top-center",
         autoClose: 2500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
         theme: "colored",
         transition: Bounce,
       });
     }
     if (deleteCommentData.isError) {
-      toast.error(deleteCommentData.error.data.msg, {
+      toast.error(deleteCommentData.error?.data?.msg || "Error deleting comment", {
         position: "top-center",
         autoClose: 2500,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
         theme: "colored",
         transition: Bounce,
       });
@@ -80,50 +53,42 @@ const Comments = ({ e, postId }) => {
   return (
     <>
       <Stack
-        flexDirection={"row"}
-        justifyContent={"space-between"}
+        direction="row"
+        justifyContent="space-between"
         px={2}
         pb={4}
-        borderBottom={"1px solid gray"}
-        mx={"auto"}
-        width={"90%"}
+        borderBottom="1px solid gray"
+        mx="auto"
+        width="90%"
       >
-        <Stack flexDirection={"row"} gap={_700 ? 2 : 1}>
-          <Avatar
-            src={e ? e.admin.profilePic : ""}
-            alt={e ? e.admin.userName : ""}
-          />
-          <Stack flexDirection={"column"}>
-            <Typography variant="h6" fontWeight={"bold"} fontSize={"0.9rem"}>
-              {e ? e.admin.userName : ""}
+        <Stack direction="row" gap={is700 ? 2 : 1}>
+          <Avatar src={e?.admin?.profilePic || ""} alt={e?.admin?.userName || ""} />
+          <Stack direction="column">
+            <Typography variant="h6" fontWeight="bold" fontSize="0.9rem">
+              {e?.admin?.userName || ""}
             </Typography>
-            <Typography variant="subtitle2" fontSize={"0.9rem"}>
-              {e ? e.text : ""}
+            <Typography variant="subtitle2" fontSize="0.9rem">
+              {e?.text || ""}
             </Typography>
           </Stack>
         </Stack>
-        <Stack
-          flexDirection={"row"}
-          gap={1}
-          alignItems={"center"}
-          color={darkMode ? "white" : "GrayText"}
-          fontSize={"0.9rem"}
-        >
-          <p>24min</p>
-          {isAdmin ? (
+
+        <Stack direction="row" gap={1} alignItems="center" color={darkMode ? "white" : "GrayText"}>
+          <Typography fontSize="0.9rem">24min</Typography>
+          {isAdmin && (
             <IoIosMore
-              size={_700 ? 28 : 20}
+              size={is700 ? 28 : 20}
               className="image-icon"
-              onClick={(e) => setAnchorEl(e.currentTarget)}
+              onClick={(ev) => setAnchorEl(ev.currentTarget)}
             />
-          ) : (
-            <IoIosMore size={_700 ? 28 : 20} className="image-icon" />
           )}
+          {!isAdmin && <IoIosMore size={is700 ? 28 : 20} color={darkMode ? "white" : "gray"} />}
         </Stack>
       </Stack>
+
       <Menu
         anchorEl={anchorEl}
-        open={anchorEl !== null ? true : false}
+        open={Boolean(anchorEl)}
         onClose={handleClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
@@ -133,4 +98,5 @@ const Comments = ({ e, postId }) => {
     </>
   );
 };
+
 export default Comments;

@@ -1,69 +1,84 @@
 import { InputAdornment, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { useLazySearchUsersQuery } from "../../redux/service";
+import { addToSearchedUsers } from "../../redux/slice";
+import { Bounce, toast } from "react-toastify";
 
-const SearchInput = ({ darkMode = false, onSearch = () => {} }) => {
+const SearchInput = () => {
+  //  correct property + correct slice
+  const { darkMode } = useSelector((state) => state.service);
+
   const [query, setQuery] = useState("");
-  const [msg, setMsg] = useState({ text: "", type: "" });
+
+  const [searchUser, searchUserData] = useLazySearchUsersQuery();
+
+  const dispatch = useDispatch();
 
   const handleSearch = async (e) => {
     if (query && e.key === "Enter") {
-      try {
-        const res = await fetch(`/api/search?query=${query}`);
-        const data = await res.json();
-        if (res.ok) {
-          onSearch(data.users);
-          setMsg({ text: data.msg, type: "success" });
-        } else {
-          setMsg({ text: data.msg, type: "error" });
-        }
-      } catch (err) {
-        setMsg({ text: "Search failed", type: "error" });
-      } finally {
-        setTimeout(() => setMsg({ text: "", type: "" }), 2500);
-      }
+      await searchUser(query);
     }
   };
 
+  useEffect(() => {
+    if (searchUserData.isSuccess) {
+      dispatch(addToSearchedUsers(searchUserData.data.users));
+
+      toast.success(searchUserData.data.msg, {
+        position: "top-center",
+        autoClose: 2500,
+        theme: "colored",
+        transition: Bounce,
+      });
+    }
+
+    if (searchUserData.isError) {
+      toast.error(searchUserData?.error?.data?.msg || "Search failed", {
+        position: "top-center",
+        autoClose: 2500,
+        theme: "colored",
+        transition: Bounce,
+      });
+    }
+  }, [searchUserData.isSuccess, searchUserData.isError]);
+
   return (
-    <>
-      {msg.text && (
-        <p style={{ textAlign: "center", color: msg.type === "success" ? "green" : "red" }}>
-          {msg.text}
-        </p>
-      )}
-      <TextField
-        sx={{
-          width: "90%",
-          maxWidth: "750px",
-          boxShadow: "5px 5px 5px gray",
-          borderRadius: "15px",
-          px: 2,
-          py: 1,
-          my: 5,
-          mx: "auto",
-          "& .MuiOutlinedInput-root": {
-            color: darkMode ? "whitesmoke" : "black",
-            "& fieldset": {
-              border: "none",
-            },
+    <TextField
+      sx={{
+        width: "90%",
+        maxWidth: "750px",
+        boxShadow: "5px 5px 5px gray",
+        borderRadius: "15px",
+        px: 2,
+        py: 1,
+        my: 5,
+        mx: "auto",
+
+        "& .MuiOutlinedInput-root": {
+          color: darkMode ? "whitesmoke" : "black",
+
+          "& fieldset": {
+            border: "none",
           },
-        }}
-        placeholder="search user..."
-        InputProps={{
-          startAdornment: (
-            <InputAdornment
-              position="start"
-              sx={{ color: darkMode ? "whitesmoke" : "black" }}>
-
-              <FaSearch />
-
-            </InputAdornment>
-          ),
-        }}
-        onChange={(e) => setQuery(e.target.value)}
-        onKeyUp={handleSearch}/>
-    </>
+        },
+      }}
+      placeholder="search user..."
+      InputProps={{
+        startAdornment: (
+          <InputAdornment
+            position="start"
+            sx={{ color: darkMode ? "whitesmoke" : "black" }}
+          >
+            <FaSearch />
+          </InputAdornment>
+        ),
+      }}
+      value={query}
+      onChange={(e) => setQuery(e.target.value)}
+      onKeyUp={handleSearch}
+    />
   );
 };
 

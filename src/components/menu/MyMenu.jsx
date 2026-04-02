@@ -1,54 +1,66 @@
-import { Menu, MenuItem, IconButton } from "@mui/material";
-import { useState } from "react";
-import { IoMenu } from "react-icons/io5";
+import { Menu, MenuItem } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  toggleMyMenu,
+  deletePostLocal,
+  setLoading,
+} from "../../redux/slice";
+import { Bounce, toast } from "react-toastify";
 
 const MyMenu = () => {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [postId] = useState("1"); // replace with your actual post id
-  const [msg, setMsg] = useState({ text: "", type: "" });
+  const { myMenuAnchorEl, postId } = useSelector((state) => state.app);
+  const dispatch = useDispatch();
 
-  const handleClose = () => setAnchorEl(null);
-  const handleOpen = (e) => setAnchorEl(e.currentTarget);
+  const handleClose = () => {
+    dispatch(toggleMyMenu(null));
+  };
 
+  //  Dummy API delete
   const handleDeletePost = async () => {
     handleClose();
+    dispatch(setLoading(true));
+
     try {
-      const res = await fetch(`/api/post/${postId}`, { method: "DELETE" });
-      const result = await res.json();
-      if (res.ok) {
-        setMsg({ text: result.msg, type: "success" });
-      } else {
-        setMsg({ text: result.msg, type: "error" });
-      }
-    } catch (err) {
-      setMsg({ text: "Delete failed", type: "error" });
+      // fake API call
+      const res = await fetch(
+        `https://jsonplaceholder.typicode.com/posts/${postId}`,
+        { method: "DELETE" }
+      );
+
+      if (!res.ok) throw new Error("Delete failed");
+
+      // remove from redux state
+      dispatch(deletePostLocal(postId));
+
+      toast.warning("Post deleted successfully", {
+        position: "top-center",
+        autoClose: 2500,
+        theme: "colored",
+        transition: Bounce,
+      });
+    } catch (error) {
+      toast.error(error.message || "Error deleting post", {
+        position: "top-center",
+        autoClose: 2500,
+        theme: "colored",
+        transition: Bounce,
+      });
     } finally {
-      setTimeout(() => setMsg({ text: "", type: "" }), 2500);
+      dispatch(setLoading(false));
     }
   };
 
   return (
-    <>
-      {msg.text && (
-        <p style={{ textAlign: "center", color: msg.type === "success" ? "green" : "red" }}>
-          {msg.text}
-        </p>
-      )}
-
-      <IconButton onClick={handleOpen}>
-        <IoMenu size={28} color="gray" />
-      </IconButton>
-
-      <Menu
-        anchorEl={anchorEl}
-        open={anchorEl !== null}
-        onClose={handleClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <MenuItem onClick={handleDeletePost}>Delete</MenuItem>
-      </Menu>
-    </>
+    <Menu
+      anchorEl={myMenuAnchorEl}
+      open={Boolean(myMenuAnchorEl)}
+      onClose={handleClose}
+      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      transformOrigin={{ vertical: "top", horizontal: "right" }}>
+      <MenuItem onClick={handleDeletePost}>
+        Delete
+      </MenuItem>
+    </Menu>
   );
 };
 
